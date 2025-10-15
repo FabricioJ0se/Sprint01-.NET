@@ -26,8 +26,12 @@ builder.Services.AddScoped<IEncomendaService, EncomendaService>();
 
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
 builder.Services.AddScoped<IMoradorService, MoradorService>();
+
 builder.Services.AddScoped<IPortariaRepository, PortariaRepository>();
+builder.Services.AddScoped<IPortariaService, PortariaService>();
+
 builder.Services.AddScoped<IRetiradaRepository, RetiradaRepository>();
+builder.Services.AddScoped<IRetiradaService, RetiradaService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
