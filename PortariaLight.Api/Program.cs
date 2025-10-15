@@ -9,32 +9,36 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5204", "https://localhost:7169")
+            .AllowAnyOrigin()  
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
 builder.Services.AddScoped<IEncomendaService, EncomendaService>();
 
 builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
-
+builder.Services.AddScoped<IMoradorService, MoradorService>();
 builder.Services.AddScoped<IPortariaRepository, PortariaRepository>();
-
 builder.Services.AddScoped<IRetiradaRepository, RetiradaRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PortariaLight API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "PortariaLight API",
+        Version = "v1",
+        Description = "API para gerenciamento de portaria, moradores, encomendas e retiradas."
+    });
 });
 
 var app = builder.Build();
@@ -42,13 +46,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PortariaLight API v1"));
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PortariaLight API v1");
+        c.RoutePrefix = string.Empty; 
+    });
 }
 
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-
-app.UseCors("AllowLocalhost");
-
 app.UseAuthorization();
 
 app.MapControllers();

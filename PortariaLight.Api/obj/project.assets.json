@@ -1732,6 +1732,7 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "Oracle.EntityFrameworkCore >= 9.23.26000",
       "PortariaLight.Application >= 1.0.0",
       "PortariaLight.Infrastructure >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.5.0"
@@ -1794,6 +1795,10 @@
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
+          "Oracle.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[9.23.26000, )"
+          },
           "Swashbuckle.AspNetCore": {
             "target": "Package",
             "version": "[6.5.0, )"

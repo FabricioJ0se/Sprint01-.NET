@@ -62,6 +62,7 @@ C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\PortariaLight.A
 C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\PortariaLight.Api.csproj.CoreCompileInputs.cache
 C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\PortariaLight.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\PortariaLight.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\PortariaLight.Api.sourcelink.json
 C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\rjimswa.dswa.cache.json
 C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\Users\fabri\Sprint01-.NET\PortariaLight.Api\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
