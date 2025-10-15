@@ -1,0 +1,11 @@
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\bin\Debug\net10.0\PortariaLight.Domain.deps.json
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\bin\Debug\net10.0\PortariaLight.Domain.dll
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\bin\Debug\net10.0\PortariaLight.Domain.pdb
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\PortariaLight.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\PortariaLight.Domain.AssemblyInfoInputs.cache
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\PortariaLight.Domain.AssemblyInfo.cs
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\PortariaLight.Domain.csproj.CoreCompileInputs.cache
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\PortariaLight.Domain.dll
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\refint\PortariaLight.Domain.dll
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\PortariaLight.Domain.pdb
+C:\Users\fabri\Sprint01-.NET\PortariaLight.Domain\obj\Debug\net10.0\ref\PortariaLight.Domain.dll
