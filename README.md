@@ -10,7 +10,7 @@
 - **Entity Framework Core**
 - **ASP.NET Core Web API**
 - **Swagger (Swashbuckle)**
-- **SQL Server (ou outro banco configurado no `AppDbContext`)**
+- **Oracle (`AppDbContext`)**
 
 ---
 
