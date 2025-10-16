@@ -1,56 +1,109 @@
-#  PortariaLight
+🏢 PortariaLight
 
-**PortariaLight** é uma aplicação desenvolvida em **.NET 10 (C#)** que tem como objetivo **gerenciar o controle de encomendas e retiradas em condomínios**, permitindo que a portaria registre e acompanhe o fluxo de entregas e retiradas de forma eficiente e centralizada.
+📘 Definição do Projeto
+
+Objetivo do Projeto:
+O PortariaLight foi desenvolvido para otimizar o controle de entrada e saída de encomendas em condomínios residenciais. A aplicação visa facilitar o trabalho dos porteiros e melhorar a organização e rastreabilidade das entregas e retiradas pelos moradores.
+
+Escopo:
+O sistema gerencia moradores, encomendas e retiradas, permitindo o registro, atualização, listagem e exclusão desses dados. O foco inicial da primeira sprint é o CRUD de Encomendas, evoluindo futuramente para controle completo de portaria e autenticação de usuários.
+
+Requisitos Funcionais:
+
+Cadastrar, listar, atualizar e remover encomendas.
+
+Associar encomendas a moradores.
+
+Registrar retiradas de encomendas.
+
+Exibir informações completas das entregas registradas.
+
+
+Requisitos Não Funcionais:
+
+Utilizar arquitetura limpa e código desacoplado.
+
+Persistência de dados com Entity Framework Core.
+
+API REST desenvolvida em .NET 8.0.
+
+Utilização de Swagger para documentação dos endpoints.
+
+
 
 ---
 
-##  Tecnologias Utilizadas
+🧱 Desenho da Arquitetura
 
-- **.NET 10.0**
-- **Entity Framework Core**
-- **ASP.NET Core Web API**
-- **Swagger (Swashbuckle)**
-- **SQL Server (ou outro banco configurado no `AppDbContext`)**
+O projeto segue o padrão Clean Architecture, dividindo responsabilidades em quatro camadas principais:
+
+Apresentação (API):
+Responsável pela comunicação externa, controladores e documentação Swagger.
+
+Aplicação:
+Contém os casos de uso, serviços e DTOs usados para a interação entre camadas.
+
+Domínio:
+Define as entidades centrais e regras de negócio (ex: Encomenda, Morador).
+
+Infraestrutura:
+Responsável pelo acesso aos dados, mapeamentos com Entity Framework Core e integração com APIs externas (futuras).
+
+
 
 ---
 
-##  Estrutura do Projeto
+⚙️ Tecnologias Utilizadas
 
-Sprint01-.NET/
-│
-├── PortariaLight.Api/ # Camada de API (Controllers, Program.cs)
-├── PortariaLight.Application/ # Camada de aplicação (Services, Interfaces)
-├── PortariaLight.Domain/ # Entidades e Interfaces de Domínio
-├── PortariaLight.Infrastructure/ # Repositórios e acesso ao banco de dados
-│
-└── README.md
-Padrão de Arquitetura
+.NET 8.0
 
-A aplicação segue uma arquitetura em camadas:
+C#
 
-Domain → Entidades e contratos.
+Entity Framework Core
 
-Infrastructure → Implementação dos repositórios e persistência de dados.
+SQL Server
 
-Application → Regras de negócio e serviços.
+Swagger
 
-API → Controladores e endpoints públicos.
+Visual Studio / VS Code
 
-Status do Projeto
+Git & GitHub
 
- Em desenvolvimento (Sprint 01 concluída)
 
- CRUD de Encomendas
 
- Integração com Swagger
+---
 
- Camadas configuradas (Domain, Application, Infrastructure, API)
+🗂️ Estrutura do Projeto
 
-Próximas etapas:
+PortariaLight/
+├── PortariaLight.Api/              # Camada de Apresentação (Controllers, Swagger)
+├── PortariaLight.Application/      # Casos de uso, serviços e DTOs
+├── PortariaLight.Domain/           # Entidades e regras de negócio
+├── PortariaLight.Infrastructure/   # Repositórios, DbContext e Migrations
+└── README.md                       # Documentação do projeto
 
- Implementar CRUD de Morador e Retirada
 
- Configurar autenticação (JWT)
+---
+
+🚀 Funcionalidades Implementadas (Sprint 01)
+
+✅ Estrutura completa baseada em Clean Architecture
+
+✅ CRUD de Encomendas
+
+✅ Integração com Entity Framework Core
+
+✅ Documentação Swagger configurada
+
+🔜 CRUD de Moradores e Retiradas (Sprint 02)
+
+🔜 Autenticação com JWT
+
+🔜 Consumo de APIs externas
+
+
+
+---
 
  Publicar API no Azure ou Render
 
