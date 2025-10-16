@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using PortariaLight.Application.DTOs;
 using PortariaLight.Application.Services;
-using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -17,45 +16,40 @@ namespace PortariaLight.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarPortariasAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var portarias = await _service.ListarPortariasAsync();
+            return Ok(portarias);
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var portaria = await _service.BuscarPortariaAsync(id);
-            if (portaria == null)
-                return NotFound();
+            if (portaria == null) return NotFound($"Portaria com ID {id} não encontrada.");
             return Ok(portaria);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Portaria portaria)
+        public async Task<IActionResult> Create([FromBody] PortariaDTO dto)
         {
-            if (portaria == null)
-                return BadRequest("Dados da portaria inválidos.");
-
-            await _service.CriarPortariaAsync(portaria);
-            return CreatedAtAction(nameof(Get), new { id = portaria.IdPortaria }, portaria);
+            await _service.CriarPortariaAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = dto.IdPortaria }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Portaria portaria)
+        public async Task<IActionResult> Update(int id, [FromBody] PortariaDTO dto)
         {
-            if (portaria == null || id != portaria.IdPortaria)
-                return BadRequest("ID inconsistente ou dados inválidos.");
+            if (id != dto.IdPortaria)
+                return BadRequest("O ID informado não corresponde à portaria.");
 
-            await _service.AtualizarPortariaAsync(portaria);
+            await _service.AtualizarPortariaAsync(dto);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existente = await _service.BuscarPortariaAsync(id);
-            if (existente == null)
-                return NotFound();
-
             await _service.RemoverPortariaAsync(id);
             return NoContent();
         }

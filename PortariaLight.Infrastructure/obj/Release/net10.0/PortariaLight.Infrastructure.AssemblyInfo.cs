@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PortariaLight.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+14e667d66e66154a75cb6385a7b22d3507f66e43")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50040fd72e7b7202cc96c61ab6a41583b5392cd1")]
 [assembly: System.Reflection.AssemblyProductAttribute("PortariaLight.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PortariaLight.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

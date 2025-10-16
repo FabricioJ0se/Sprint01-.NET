@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using PortariaLight.Application.DTOs;
 using PortariaLight.Application.Services;
-using PortariaLight.Domain.Entities;
 using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
@@ -16,51 +16,36 @@ namespace PortariaLight.Api.Controllers
             _service = service;
         }
 
-        // GET: api/morador
         [HttpGet]
-        public async Task<IActionResult> Get() =>
+        public async Task<IActionResult> GetAll() =>
             Ok(await _service.ListarMoradoresAsync());
 
-        // GET: api/morador/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var morador = await _service.BuscarMoradorAsync(id);
-            if (morador == null)
-                return NotFound();
+            if (morador == null) return NotFound();
             return Ok(morador);
         }
 
-        // POST: api/morador
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Morador morador)
+        public async Task<IActionResult> Create([FromBody] MoradorDTO dto)
         {
-            if (morador == null)
-                return BadRequest("Dados do morador inválidos.");
-
-            await _service.CriarMoradorAsync(morador);
-            return CreatedAtAction(nameof(Get), new { id = morador.IdMorador }, morador);
+            await _service.CriarMoradorAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = dto.IdMorador }, dto);
         }
 
-        // PUT: api/morador/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Morador morador)
+        public async Task<IActionResult> Update(int id, [FromBody] MoradorDTO dto)
         {
-            if (morador == null || id != morador.IdMorador)
-                return BadRequest("ID inconsistente ou dados inválidos.");
-
-            await _service.AtualizarMoradorAsync(morador);
+            if (id != dto.IdMorador) return BadRequest();
+            await _service.AtualizarMoradorAsync(dto);
             return NoContent();
         }
 
-        // DELETE: api/morador/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existente = await _service.BuscarMoradorAsync(id);
-            if (existente == null)
-                return NotFound();
-
             await _service.RemoverMoradorAsync(id);
             return NoContent();
         }

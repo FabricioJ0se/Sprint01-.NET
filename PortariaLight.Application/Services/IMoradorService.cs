@@ -1,4 +1,4 @@
-using PortariaLight.Domain.Entities;
+using PortariaLight.Application.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,10 +6,10 @@ namespace PortariaLight.Application.Services
 {
     public interface IMoradorService
     {
-        Task<IEnumerable<Morador>> ListarMoradoresAsync();
-        Task<Morador> BuscarMoradorAsync(int id);
-        Task CriarMoradorAsync(Morador morador);
-        Task AtualizarMoradorAsync(Morador morador);
+        Task<IEnumerable<MoradorDTO>> ListarMoradoresAsync();
+        Task<MoradorDTO?> BuscarMoradorAsync(int id);
+        Task CriarMoradorAsync(MoradorDTO morador);
+        Task AtualizarMoradorAsync(MoradorDTO morador);
         Task RemoverMoradorAsync(int id);
     }
 }

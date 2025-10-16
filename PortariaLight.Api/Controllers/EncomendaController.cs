@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using PortariaLight.Application.DTOs;
 using PortariaLight.Application.Services;
-using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -17,29 +16,34 @@ namespace PortariaLight.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarEncomendasAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var encomendas = await _service.ListarEncomendasAsync();
+            return Ok(encomendas);
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var encomenda = await _service.BuscarEncomendaAsync(id);
-            if (encomenda == null) return NotFound();
+            if (encomenda == null) return NotFound($"Encomenda com ID {id} não encontrada.");
             return Ok(encomenda);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Encomenda encomenda)
+        public async Task<IActionResult> Create([FromBody] EncomendaDTO dto)
         {
-            await _service.CriarEncomendaAsync(encomenda);
-            return CreatedAtAction(nameof(Get), new { id = encomenda.IdEncomenda }, encomenda);
+            await _service.CriarEncomendaAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = dto.IdEncomenda }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Encomenda encomenda)
+        public async Task<IActionResult> Update(int id, [FromBody] EncomendaDTO dto)
         {
-            if (id != encomenda.IdEncomenda) return BadRequest();
-            await _service.AtualizarEncomendaAsync(encomenda);
+            if (id != dto.IdEncomenda)
+                return BadRequest("O ID informado não corresponde à encomenda.");
+
+            await _service.AtualizarEncomendaAsync(dto);
             return NoContent();
         }
 

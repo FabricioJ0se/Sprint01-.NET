@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using PortariaLight.Application.DTOs;
 using PortariaLight.Application.Services;
-using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -17,45 +16,40 @@ namespace PortariaLight.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarRetiradasAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var retiradas = await _service.ListarRetiradasAsync();
+            return Ok(retiradas);
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var retirada = await _service.BuscarRetiradaAsync(id);
-            if (retirada == null)
-                return NotFound();
+            if (retirada == null) return NotFound($"Retirada com ID {id} não encontrada.");
             return Ok(retirada);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Retirada retirada)
+        public async Task<IActionResult> Create([FromBody] RetiradaDTO dto)
         {
-            if (retirada == null)
-                return BadRequest("Dados da retirada inválidos.");
-
-            await _service.CriarRetiradaAsync(retirada);
-            return CreatedAtAction(nameof(Get), new { id = retirada.IdRetirada }, retirada);
+            await _service.CriarRetiradaAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = dto.IdRetirada }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Retirada retirada)
+        public async Task<IActionResult> Update(int id, [FromBody] RetiradaDTO dto)
         {
-            if (retirada == null || id != retirada.IdRetirada)
-                return BadRequest("ID inconsistente ou dados inválidos.");
+            if (id != dto.IdRetirada)
+                return BadRequest("O ID informado não corresponde à retirada.");
 
-            await _service.AtualizarRetiradaAsync(retirada);
+            await _service.AtualizarRetiradaAsync(dto);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existente = await _service.BuscarRetiradaAsync(id);
-            if (existente == null)
-                return NotFound();
-
             await _service.RemoverRetiradaAsync(id);
             return NoContent();
         }

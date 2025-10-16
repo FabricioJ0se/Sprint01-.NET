@@ -1,12 +1,15 @@
-using PortariaLight.Domain.Entities;
+using PortariaLight.Application.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public interface IRetiradaService
+namespace PortariaLight.Application.Services
 {
-    Task<IEnumerable<Retirada>> ListarRetiradasAsync();
-    Task<Retirada> BuscarRetiradaAsync(int id);
-    Task CriarRetiradaAsync(Retirada retirada);
-    Task AtualizarRetiradaAsync(Retirada retirada);
-    Task RemoverRetiradaAsync(int id);
+    public interface IRetiradaService
+    {
+        Task<IEnumerable<RetiradaDTO>> ListarRetiradasAsync();
+        Task<RetiradaDTO> BuscarRetiradaAsync(int id);
+        Task CriarRetiradaAsync(RetiradaDTO dto);
+        Task AtualizarRetiradaAsync(RetiradaDTO dto);
+        Task RemoverRetiradaAsync(int id);
+    }
 }

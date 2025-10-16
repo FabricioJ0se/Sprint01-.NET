@@ -1,4 +1,4 @@
-using PortariaLight.Domain.Entities;
+using PortariaLight.Application.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,10 +6,10 @@ namespace PortariaLight.Application.Services
 {
     public interface IEncomendaService
     {
-        Task<IEnumerable<Encomenda>> ListarEncomendasAsync();
-        Task<Encomenda> BuscarEncomendaAsync(int id);
-        Task CriarEncomendaAsync(Encomenda encomenda);
-        Task AtualizarEncomendaAsync(Encomenda encomenda);
+        Task<IEnumerable<EncomendaDTO>> ListarEncomendasAsync();
+        Task<EncomendaDTO?> BuscarEncomendaAsync(int id); 
+        Task CriarEncomendaAsync(EncomendaDTO dto);
+        Task AtualizarEncomendaAsync(EncomendaDTO dto);
         Task RemoverEncomendaAsync(int id);
     }
 }
