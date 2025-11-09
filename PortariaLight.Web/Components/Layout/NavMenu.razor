@@ -1,0 +1,44 @@
+﻿<div class="top-row ps-3 navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Portaria Light</a>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <a class="nav-link" href="/">
+                <span>🏠</span> Dashboard
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link" href="/encomendas">
+                <span>📦</span> Encomendas
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link" href="/moradores">
+                <span>👥</span> Moradores
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link" href="/portarias">
+                <span>🏢</span> Portarias
+            </a>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

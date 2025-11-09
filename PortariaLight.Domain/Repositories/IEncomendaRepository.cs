@@ -1,15 +1,15 @@
 using PortariaLight.Domain.Entities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Domain.Repositories
 {
     public interface IEncomendaRepository
     {
         Task<IEnumerable<Encomenda>> GetAllAsync();
-        Task<Encomenda> GetByIdAsync(int id);
-        Task AddAsync(Encomenda encomenda);
-        Task UpdateAsync(Encomenda encomenda);
-        Task DeleteAsync(int id);
+        Task<Encomenda?> GetByIdAsync(int id);
+        Task<Encomenda> CreateAsync(Encomenda encomenda);
+        Task<Encomenda> UpdateAsync(Encomenda encomenda);
+        Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Encomenda>> GetByMoradorIdAsync(int moradorId);
+        Task<IEnumerable<Encomenda>> GetNaoRetiradasAsync();
     }
 }

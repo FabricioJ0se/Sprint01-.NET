@@ -1,0 +1,315 @@
+﻿@page "/portarias"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Portarias - Portaria Light</PageTitle>
+
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary mb-1">
+                <i class="fas fa-shield-alt me-2"></i>Gerenciar Portarias
+            </h2>
+            <p class="text-muted">Controle os porteiros e turnos do condomínio</p>
+        </div>
+        <button class="btn btn-primary btn-lg" @onclick="ShowCriarModal">
+            <i class="fas fa-plus me-2"></i>Nova Portaria
+        </button>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@portarias.Count</h4>
+                            <p class="mb-0">Total de Portarias</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@portarias.Count(p => p.Turno == "Manhã")</h4>
+                            <p class="mb-0">Turno da Manhã</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-sun fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@portarias.Count(p => p.Turno == "Tarde")</h4>
+                            <p class="mb-0">Turno da Tarde</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-cloud-sun fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@portarias.Count(p => p.Turno == "Noite")</h4>
+                            <p class="mb-0">Turno da Noite</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-moon fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card da Tabela -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0 text-dark">
+                <i class="fas fa-list me-2"></i>Lista de Portarias
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (portarias == null)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="text-muted mt-2">Carregando portarias...</p>
+                </div>
+            }
+            else if (!portarias.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhuma portaria cadastrada</h5>
+                    <p class="text-muted">Clique no botão acima para adicionar a primeira portaria.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Porteiro</th>
+                                <th>Turno</th>
+                                <th>Contato</th>
+                                <th>Data Registro</th>
+                                <th class="text-center pe-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var portaria in portarias)
+                            {
+                                <tr class="align-middle">
+                                    <td class="ps-4 fw-bold text-primary">#@portaria.IdPortaria</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">@portaria.NomePorteiro</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (portaria.Turno == "Manhã")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-sun me-1"></i>@portaria.Turno
+                                            </span>
+                                        }
+                                        else if (portaria.Turno == "Tarde")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-cloud-sun me-1"></i>@portaria.Turno
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-moon me-1"></i>@portaria.Turno
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-phone me-2 text-muted"></i>@portaria.Contato
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@portaria.DataRegistro.ToString("dd/MM/yyyy")</small>
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-warning" @onclick="() => EditarPortaria(portaria)" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" @onclick="() => DeletarPortaria(portaria.IdPortaria)" title="Excluir">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+@if (showModal)
+{
+    <div class="modal show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas @(portariaEdit.IdPortaria == 0 ? "fa-plus" : "fa-edit") me-2"></i>
+                        @(portariaEdit.IdPortaria == 0 ? "Nova Portaria" : "Editar Portaria")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="FecharModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-user me-2 text-muted"></i>Nome do Porteiro
+                        </label>
+                        <input @bind="portariaEdit.NomePorteiro" class="form-control" placeholder="Digite o nome do porteiro" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-clock me-2 text-muted"></i>Turno
+                        </label>
+                        <select @bind="portariaEdit.Turno" class="form-select">
+                            <option value="">Selecione o turno...</option>
+                            <option value="Manhã">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Noite">Noite</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-phone me-2 text-muted"></i>Contato
+                        </label>
+                        <input @bind="portariaEdit.Contato" class="form-control" placeholder="Digite o telefone de contato" />
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="FecharModal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" @onclick="SalvarPortaria">
+                        <i class="fas @(portariaEdit.IdPortaria == 0 ? "fa-save" : "fa-check") me-2"></i>
+                        @(portariaEdit.IdPortaria == 0 ? "Criar" : "Salvar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public class Portaria
+    {
+        public int IdPortaria { get; set; }
+        public string NomePorteiro { get; set; } = string.Empty;
+        public string Turno { get; set; } = string.Empty;
+        public string Contato { get; set; } = string.Empty;
+        public DateTime DataRegistro { get; set; } = DateTime.Now;
+    }
+
+    private List<Portaria> portarias = new();
+    private Portaria portariaEdit = new();
+    private bool showModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarPortarias();
+    }
+
+    private async Task CarregarPortarias()
+    {
+        await Task.Delay(500);
+        portarias = new List<Portaria>
+        {
+            new Portaria { IdPortaria = 1, NomePorteiro = "João Silva", Turno = "Manhã", Contato = "(11) 99999-1234", DataRegistro = DateTime.Now.AddDays(-10) },
+            new Portaria { IdPortaria = 2, NomePorteiro = "Maria Santos", Turno = "Tarde", Contato = "(11) 99999-5678", DataRegistro = DateTime.Now.AddDays(-5) },
+            new Portaria { IdPortaria = 3, NomePorteiro = "Pedro Oliveira", Turno = "Noite", Contato = "(11) 99999-9012", DataRegistro = DateTime.Now.AddDays(-2) }
+        };
+    }
+
+    private void ShowCriarModal() { portariaEdit = new Portaria(); showModal = true; }
+    private void FecharModal() { showModal = false; }
+
+    private void EditarPortaria(Portaria portaria)
+    {
+        portariaEdit = new Portaria 
+        { 
+            IdPortaria = portaria.IdPortaria,
+            NomePorteiro = portaria.NomePorteiro,
+            Turno = portaria.Turno,
+            Contato = portaria.Contato,
+            DataRegistro = portaria.DataRegistro
+        };
+        showModal = true;
+    }
+
+    private async Task SalvarPortaria()
+    {
+        if (portariaEdit.IdPortaria == 0)
+        {
+            portariaEdit.IdPortaria = portarias.Count + 1;
+            portarias.Add(portariaEdit);
+        }
+        else
+        {
+            var existing = portarias.FirstOrDefault(p => p.IdPortaria == portariaEdit.IdPortaria);
+            if (existing != null)
+            {
+                existing.NomePorteiro = portariaEdit.NomePorteiro;
+                existing.Turno = portariaEdit.Turno;
+                existing.Contato = portariaEdit.Contato;
+            }
+        }
+        showModal = false;
+        StateHasChanged();
+    }
+
+    private async Task DeletarPortaria(int id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Tem certeza que deseja excluir esta portaria?");
+        if (confirmed)
+        {
+            portarias.RemoveAll(p => p.IdPortaria == id);
+            StateHasChanged();
+        }
+    }
+}

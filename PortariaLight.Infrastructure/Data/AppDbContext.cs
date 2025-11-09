@@ -5,93 +5,79 @@ namespace PortariaLight.Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
-        {
-        }
-
-        // DbSets para cada tabela
-        public DbSet<Morador> Moradores { get; set; }
-        public DbSet<Portaria> Portarias { get; set; }
-        public DbSet<Retirada> Retiradas { get; set; }
-        public DbSet<Encomenda> Encomendas { get; set; }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Mapear tabelas existentes - SEM propriedades de navegação
+            modelBuilder.Entity<Apartamento>().ToTable("TPL_APARTAMENTO");
+            modelBuilder.Entity<Apartamento>().HasKey(a => a.IdApartamento);
+            modelBuilder.Entity<Apartamento>().Property(a => a.IdApartamento).HasColumnName("ID_APARTAMENTO");
+            modelBuilder.Entity<Apartamento>().Property(a => a.Numero).HasColumnName("NUMERO");
+            modelBuilder.Entity<Apartamento>().Property(a => a.Bloco).HasColumnName("BLOCO");
+
+            modelBuilder.Entity<Morador>().ToTable("TPL_MORADOR");
+            modelBuilder.Entity<Morador>().HasKey(m => m.IdMorador);
+            modelBuilder.Entity<Morador>().Property(m => m.IdMorador).HasColumnName("ID_MORADOR");
+            modelBuilder.Entity<Morador>().Property(m => m.Nome).HasColumnName("NOME");
+            modelBuilder.Entity<Morador>().Property(m => m.Contato).HasColumnName("CONTATO");
+            modelBuilder.Entity<Morador>().Property(m => m.IdApartamento).HasColumnName("ID_APARTAMENTO");
+
+            modelBuilder.Entity<Portaria>().ToTable("TPL_PORTARIA");
+            modelBuilder.Entity<Portaria>().HasKey(p => p.IdPortaria);
+            modelBuilder.Entity<Portaria>().Property(p => p.IdPortaria).HasColumnName("ID_PORTARIA");
+            modelBuilder.Entity<Portaria>().Property(p => p.Nome).HasColumnName("NOME_PORTEIRO");
+            modelBuilder.Entity<Portaria>().Property(p => p.Turno).HasColumnName("TURNO");
+            modelBuilder.Entity<Portaria>().Property(p => p.Contato).HasColumnName("CONTATO");
+
+            modelBuilder.Entity<Retirada>().ToTable("TPL_RETIRADA");
+            modelBuilder.Entity<Retirada>().HasKey(r => r.IdRetirada);
+            modelBuilder.Entity<Retirada>().Property(r => r.IdRetirada).HasColumnName("ID_RETIRADA");
+            modelBuilder.Entity<Retirada>().Property(r => r.DataRetirada).HasColumnName("DATA_RETIRADA");
+            modelBuilder.Entity<Retirada>().Property(r => r.IdMorador).HasColumnName("ID_MORADOR");
+            modelBuilder.Entity<Retirada>().Property(r => r.IdPortaria).HasColumnName("ID_PORTARIA");
+
+            modelBuilder.Entity<Encomenda>().ToTable("TPL_ENCOMENDA");
+            modelBuilder.Entity<Encomenda>().HasKey(e => e.IdEncomenda);
+            modelBuilder.Entity<Encomenda>().Property(e => e.IdEncomenda).HasColumnName("ID_ENCOMENDA");
+            modelBuilder.Entity<Encomenda>().Property(e => e.Descricao).HasColumnName("DESCRICAO");
+            modelBuilder.Entity<Encomenda>().Property(e => e.DataRecebimento).HasColumnName("DATA_RECEBIDA");
+            modelBuilder.Entity<Encomenda>().Property(e => e.IdMorador).HasColumnName("ID_MORADOR");
+            modelBuilder.Entity<Encomenda>().Property(e => e.IdRetirada).HasColumnName("ID_RETIRADA");
+
+            // Configurar relacionamentos SIMPLIFICADOS - SEM navegação
+            modelBuilder.Entity<Morador>()
+                .HasOne<Apartamento>()
+                .WithMany()
+                .HasForeignKey(m => m.IdApartamento);
+
+            modelBuilder.Entity<Encomenda>()
+                .HasOne<Morador>()
+                .WithMany()
+                .HasForeignKey(e => e.IdMorador);
+
+            modelBuilder.Entity<Encomenda>()
+                .HasOne<Retirada>()
+                .WithMany()
+                .HasForeignKey(e => e.IdRetirada);
+
+            modelBuilder.Entity<Retirada>()
+                .HasOne<Morador>()
+                .WithMany()
+                .HasForeignKey(r => r.IdMorador);
+
+            modelBuilder.Entity<Retirada>()
+                .HasOne<Portaria>()
+                .WithMany()
+                .HasForeignKey(r => r.IdPortaria);
+
             base.OnModelCreating(modelBuilder);
-
-            // Mapeamento de Morador
-            modelBuilder.Entity<Morador>(entity =>
-            {
-                entity.ToTable("TPL_MORADOR");
-                entity.HasKey(e => e.IdMorador).HasName("TPL_MORADOR_PK");
-
-                entity.Property(e => e.IdMorador).HasColumnName("ID_MORADOR");
-                entity.Property(e => e.Nome).HasColumnName("NOME").HasMaxLength(100);
-                entity.Property(e => e.Apartamento).HasColumnName("APARTAMENTO");
-                entity.Property(e => e.Bloco).HasColumnName("BLOCO");
-                entity.Property(e => e.Contato).HasColumnName("CONTATO").HasMaxLength(100);
-            });
-
-            // Mapeamento de Portaria
-            modelBuilder.Entity<Portaria>(entity =>
-            {
-                entity.ToTable("TPL_PORTARIA");
-                entity.HasKey(e => e.IdPortaria).HasName("TPL_PORTARIA_PK");
-
-                entity.Property(e => e.IdPortaria).HasColumnName("ID_PORTARIA");
-                entity.Property(e => e.NomePorteiro).HasColumnName("NOME_PORTEIRO").HasMaxLength(100);
-                entity.Property(e => e.Turno).HasColumnName("TURNO").HasMaxLength(50);
-                entity.Property(e => e.Contato).HasColumnName("CONTATO").HasMaxLength(100);
-                entity.Property(e => e.DataRegistro).HasColumnName("DATA_REGISTRO");
-            });
-
-            // Mapeamento de Retirada
-            modelBuilder.Entity<Retirada>(entity =>
-            {
-                entity.ToTable("TPL_RETIRADA");
-                entity.HasKey(e => e.IdRetirada).HasName("TPL_RETIRADA_PK");
-
-                entity.Property(e => e.IdRetirada).HasColumnName("ID_RETIRADA");
-                entity.Property(e => e.DataRetirada).HasColumnName("DATA_RETIRADA");
-                entity.Property(e => e.TokenRetirada).HasColumnName("TOKEN_RETIRADA").HasMaxLength(50);
-                entity.Property(e => e.MoradorId).HasColumnName("TPL_MORADOR_ID_MORADOR");
-                entity.Property(e => e.PortariaId).HasColumnName("TPL_PORTARIA_ID_PORTARIA");
-
-                entity.HasOne(e => e.Morador)
-                      .WithMany(m => m.Retiradas)
-                      .HasForeignKey(e => e.MoradorId)
-                      .HasConstraintName("TPL_RETIRADA_TLP_MORADOR_FK");
-
-                entity.HasOne(e => e.Portaria)
-                      .WithMany(p => p.Retiradas)
-                      .HasForeignKey(e => e.PortariaId)
-                      .HasConstraintName("TLP_RETIRADA_TLP_PORTARIA_FK");
-            });
-
-            // Mapeamento de Encomenda
-            modelBuilder.Entity<Encomenda>(entity =>
-            {
-                entity.ToTable("TPL_ENCOMENDA");
-                entity.HasKey(e => e.IdEncomenda).HasName("TPL_ENCOMENDA_PK");
-
-                entity.Property(e => e.IdEncomenda).HasColumnName("ID_ENCOMENDA");
-                entity.Property(e => e.Descricao).HasColumnName("DESCRICAO").HasMaxLength(200);
-                entity.Property(e => e.DataRecebida).HasColumnName("DATA_RECEBIDA");
-                entity.Property(e => e.Status).HasColumnName("STATUS").HasMaxLength(50);
-                entity.Property(e => e.MoradorId).HasColumnName("TPL_MORADOR_ID_MORADOR");
-                entity.Property(e => e.RetiradaId).HasColumnName("TPL_RETIRADA_ID_RETIRADA");
-
-                entity.HasOne(e => e.Morador)
-                      .WithMany(m => m.Encomendas)
-                      .HasForeignKey(e => e.MoradorId)
-                      .HasConstraintName("TPL_ENCOMENDA_TLP_MORADOR_FK");
-
-                entity.HasOne(e => e.Retirada)
-                      .WithMany(r => r.Encomendas)
-                      .HasForeignKey(e => e.RetiradaId)
-                      .HasConstraintName("TPl_ENCOMENDA_TLP_RETIRADA_FK");
-            });
         }
+
+        public DbSet<Apartamento> Apartamentos { get; set; }
+        public DbSet<Encomenda> Encomendas { get; set; }
+        public DbSet<Morador> Moradores { get; set; }
+        public DbSet<Portaria> Portarias { get; set; }
+        public DbSet<Retirada> Retiradas { get; set; }
     }
 }

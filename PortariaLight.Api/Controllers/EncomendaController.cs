@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PortariaLight.Application.Services;
 using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -9,45 +8,68 @@ namespace PortariaLight.Api.Controllers
     [Route("api/[controller]")]
     public class EncomendaController : ControllerBase
     {
-        private readonly IEncomendaService _service;
+        private readonly IEncomendaService _encomendaService;
 
-        public EncomendaController(IEncomendaService service)
+        public EncomendaController(IEncomendaService encomendaService)
         {
-            _service = service;
+            _encomendaService = encomendaService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarEncomendasAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var encomendas = await _encomendaService.GetAllEncomendasAsync();
+            return Ok(encomendas);
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var encomenda = await _service.BuscarEncomendaAsync(id);
-            if (encomenda == null) return NotFound();
+            var encomenda = await _encomendaService.GetEncomendaByIdAsync(id);
+            if (encomenda == null)
+                return NotFound();
             return Ok(encomenda);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Encomenda encomenda)
+        public async Task<IActionResult> Create(Encomenda encomenda)
         {
-            await _service.CriarEncomendaAsync(encomenda);
-            return CreatedAtAction(nameof(Get), new { id = encomenda.IdEncomenda }, encomenda);
+            var created = await _encomendaService.CreateEncomendaAsync(encomenda);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdEncomenda }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Encomenda encomenda)
+        public async Task<IActionResult> Update(int id, Encomenda encomenda)
         {
-            if (id != encomenda.IdEncomenda) return BadRequest();
-            await _service.AtualizarEncomendaAsync(encomenda);
-            return NoContent();
+            if (id != encomenda.IdEncomenda)
+                return BadRequest();
+
+            var updated = await _encomendaService.UpdateEncomendaAsync(encomenda);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.RemoverEncomendaAsync(id);
+            var result = await _encomendaService.DeleteEncomendaAsync(id);
+            if (!result)
+                return NotFound();
+
             return NoContent();
+        }
+
+        [HttpGet("morador/{moradorId}")]
+        public async Task<IActionResult> GetByMorador(int moradorId)
+        {
+            var encomendas = await _encomendaService.GetEncomendasByMoradorAsync(moradorId);
+            return Ok(encomendas);
+        }
+
+        [HttpGet("nao-retiradas")]
+        public async Task<IActionResult> GetNaoRetiradas()
+        {
+            var encomendas = await _encomendaService.GetEncomendasNaoRetiradasAsync();
+            return Ok(encomendas);
         }
     }
 }

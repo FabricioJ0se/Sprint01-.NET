@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PortariaLight.Application.Services;
 using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -9,60 +8,70 @@ namespace PortariaLight.Api.Controllers
     [Route("api/[controller]")]
     public class MoradorController : ControllerBase
     {
-        private readonly IMoradorService _service;
+        private readonly IMoradorService _moradorService;
 
-        public MoradorController(IMoradorService service)
+        public MoradorController(IMoradorService moradorService)
         {
-            _service = service;
+            _moradorService = moradorService;
         }
 
-        // GET: api/morador
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarMoradoresAsync());
-
-        // GET: api/morador/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetAll()
         {
-            var morador = await _service.BuscarMoradorAsync(id);
+            var moradores = await _moradorService.GetAllMoradoresAsync();
+            return Ok(moradores);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var morador = await _moradorService.GetMoradorByIdAsync(id);
             if (morador == null)
                 return NotFound();
             return Ok(morador);
         }
 
-        // POST: api/morador
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Morador morador)
+        public async Task<IActionResult> Create(Morador morador)
         {
-            if (morador == null)
-                return BadRequest("Dados do morador inválidos.");
-
-            await _service.CriarMoradorAsync(morador);
-            return CreatedAtAction(nameof(Get), new { id = morador.IdMorador }, morador);
+            var created = await _moradorService.CreateMoradorAsync(morador);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdMorador }, created);
         }
 
-        // PUT: api/morador/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Morador morador)
+        public async Task<IActionResult> Update(int id, Morador morador)
         {
-            if (morador == null || id != morador.IdMorador)
-                return BadRequest("ID inconsistente ou dados inválidos.");
+            if (id != morador.IdMorador)
+                return BadRequest();
 
-            await _service.AtualizarMoradorAsync(morador);
-            return NoContent();
+            var updated = await _moradorService.UpdateMoradorAsync(morador);
+            return Ok(updated);
         }
 
-        // DELETE: api/morador/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existente = await _service.BuscarMoradorAsync(id);
-            if (existente == null)
+            var result = await _moradorService.DeleteMoradorAsync(id);
+            if (!result)
                 return NotFound();
 
-            await _service.RemoverMoradorAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("apartamento/{apartamentoId}")]
+        public async Task<IActionResult> GetByApartamento(int apartamentoId)
+        {
+            var moradores = await _moradorService.GetMoradoresByApartamentoAsync(apartamentoId);
+            return Ok(moradores);
+        }
+
+        [HttpGet("contato/{contato}")]
+        public async Task<IActionResult> GetByContato(string contato)
+        {
+            var morador = await _moradorService.GetMoradorByContatoAsync(contato);
+            if (morador == null)
+                return NotFound();
+            return Ok(morador);
         }
     }
 }

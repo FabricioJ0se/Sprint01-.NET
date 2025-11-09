@@ -1,0 +1,76 @@
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">
+            <i class="fas fa-shield-alt me-2"></i>Portaria Light
+        </a>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <div class="navbar-brand-container">
+                <a class="navbar-brand" href="">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <strong>Portaria Light</strong>
+                </a>
+            </div>
+        </div>
+        <div class="nav-item px-3">
+            <hr class="my-2" />
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @GetNavLinkClass("/")" href="/">
+                <i class="fas fa-home me-2"></i>Início
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @GetNavLinkClass("/apartamentos")" href="/apartamentos">
+                <i class="fas fa-building me-2"></i>Apartamentos
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @GetNavLinkClass("/moradores")" href="/moradores">
+                <i class="fas fa-users me-2"></i>Moradores
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @GetNavLinkClass("/portarias")" href="/portarias">
+                <i class="fas fa-shield-alt me-2"></i>Portarias
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @GetNavLinkClass("/encomendas")" href="/encomendas">
+                <i class="fas fa-box me-2"></i>Encomendas
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @GetNavLinkClass("/retiradas")" href="/retiradas">
+                <i class="fas fa-receipt me-2"></i>Retiradas
+            </a>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private string GetNavLinkClass(string path)
+    {
+        var currentPath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+        var targetPath = path.Trim('/').ToLower();
+        return currentPath == targetPath ? "active" : "";
+    }
+
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+}

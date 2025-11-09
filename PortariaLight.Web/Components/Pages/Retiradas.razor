@@ -1,0 +1,403 @@
+@page "/retiradas"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Retiradas - Portaria Light</PageTitle>
+
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary mb-1">
+                <i class="fas fa-receipt me-2"></i>Gerenciar Retiradas
+            </h2>
+            <p class="text-muted">Controle de retiradas de encomendas pelos moradores</p>
+        </div>
+        <button class="btn btn-primary btn-lg" @onclick="ShowCriarModal">
+            <i class="fas fa-plus me-2"></i>Nova Retirada
+        </button>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@retiradas.Count</h4>
+                            <p class="mb-0">Total de Retiradas</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-receipt fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@retiradas.Count(r => r.DataRetirada.Date == DateTime.Today)</h4>
+                            <p class="mb-0">Hoje</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calendar-day fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@retiradas.Count(r => r.DataRetirada.Date == DateTime.Today.AddDays(-1))</h4>
+                            <p class="mb-0">Ontem</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calendar-minus fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@retiradas.Count(r => r.DataRetirada.Month == DateTime.Today.Month)</h4>
+                            <p class="mb-0">Este Mês</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calendar-alt fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card da Tabela -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0 text-dark">
+                <i class="fas fa-list me-2"></i>Lista de Retiradas
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="text-muted mt-2">Carregando retiradas...</p>
+                </div>
+            }
+            else if (!retiradas.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhuma retirada registrada</h5>
+                    <p class="text-muted">Clique no botão acima para registrar a primeira retirada.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Data e Hora</th>
+                                <th>Token</th>
+                                <th>ID Morador</th>
+                                <th>ID Portaria</th>
+                                <th class="text-center pe-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var retirada in retiradas)
+                            {
+                                <tr class="align-middle">
+                                    <td class="ps-4 fw-bold text-primary">#@retirada.IdRetirada</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-calendar text-dark"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">@retirada.DataRetirada.ToString("dd/MM/yyyy")</h6>
+                                                <small class="text-muted">@retirada.DataRetirada.ToString("HH:mm")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <code class="bg-light px-2 py-1 rounded">@retirada.TokenRetirada</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-user me-1"></i>#@retirada.IdMorador
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-shield-alt me-1"></i>#@retirada.IdPortaria
+                                        </span>
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-warning" @onclick="() => EditarRetirada(retirada)" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" @onclick="() => DeletarRetirada(retirada.IdRetirada)" title="Excluir">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+@if (showModal)
+{
+    <div class="modal show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas @(retiradaEdit.IdRetirada == 0 ? "fa-plus" : "fa-edit") me-2"></i>
+                        @(retiradaEdit.IdRetirada == 0 ? "Nova Retirada" : "Editar Retirada")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="FecharModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar me-2 text-muted"></i>Data e Hora da Retirada
+                        </label>
+                        <input @bind="retiradaEdit.DataRetirada" type="datetime-local" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-key me-2 text-muted"></i>Token de Retirada
+                        </label>
+                        <input @bind="retiradaEdit.TokenRetirada" class="form-control" placeholder="Digite o token de retirada" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user me-2 text-muted"></i>ID do Morador
+                            </label>
+                            <input @bind="retiradaEdit.IdMorador" type="number" class="form-control" placeholder="ID do morador" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-shield-alt me-2 text-muted"></i>ID da Portaria
+                            </label>
+                            <input @bind="retiradaEdit.IdPortaria" type="number" class="form-control" placeholder="ID da portaria" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="FecharModal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" @onclick="SalvarRetirada">
+                        <i class="fas @(retiradaEdit.IdRetirada == 0 ? "fa-save" : "fa-check") me-2"></i>
+                        @(retiradaEdit.IdRetirada == 0 ? "Criar" : "Salvar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Toast -->
+@if (showToast)
+{
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div class="toast show" role="alert">
+            <div class="toast-header @(toastType == "success" ? "bg-success text-white" : "bg-danger text-white")">
+                <i class="fas @(toastType == "success" ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
+                <strong class="me-auto">@(toastType == "success" ? "Sucesso" : "Erro")</strong>
+                <button type="button" class="btn-close btn-close-white" @onclick="FecharToast"></button>
+            </div>
+            <div class="toast-body">
+                @toastMessage
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public class Retirada
+    {
+        public int IdRetirada { get; set; }
+        public DateTime DataRetirada { get; set; } = DateTime.Now;
+        public string TokenRetirada { get; set; } = string.Empty;
+        public int IdMorador { get; set; }
+        public int IdPortaria { get; set; }
+    }
+
+    private List<Retirada> retiradas = new();
+    private Retirada retiradaEdit = new();
+    private bool showModal = false;
+    private bool showToast = false;
+    private string toastMessage = "";
+    private string toastType = "success";
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarRetiradas();
+    }
+
+    private async Task CarregarRetiradas()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+            
+            var response = await Http.GetAsync("api/Retirada");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                retiradas = await response.Content.ReadFromJsonAsync<List<Retirada>>() ?? new List<Retirada>();
+            }
+            else
+            {
+                MostrarToast("Erro ao carregar retiradas", "error");
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarToast($"Erro: {ex.Message}", "error");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowCriarModal() { retiradaEdit = new Retirada { DataRetirada = DateTime.Now }; showModal = true; }
+    private void FecharModal() { showModal = false; }
+
+    private void EditarRetirada(Retirada retirada)
+    {
+        retiradaEdit = new Retirada 
+        { 
+            IdRetirada = retirada.IdRetirada,
+            DataRetirada = retirada.DataRetirada,
+            TokenRetirada = retirada.TokenRetirada,
+            IdMorador = retirada.IdMorador,
+            IdPortaria = retirada.IdPortaria
+        };
+        showModal = true;
+    }
+
+    private async Task SalvarRetirada()
+    {
+        if (string.IsNullOrWhiteSpace(retiradaEdit.TokenRetirada))
+        {
+            MostrarToast("Preencha o token de retirada!", "error");
+            return;
+        }
+
+        try
+        {
+            if (retiradaEdit.IdRetirada == 0)
+            {
+                // POST - Criar novo
+                var response = await Http.PostAsJsonAsync("api/Retirada", retiradaEdit);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarToast("Retirada criada com sucesso!", "success");
+                    showModal = false;
+                    await CarregarRetiradas();
+                }
+                else
+                {
+                    MostrarToast("Erro ao criar retirada", "error");
+                }
+            }
+            else
+            {
+                // PUT - Atualizar existente
+                var response = await Http.PutAsJsonAsync($"api/Retirada/{retiradaEdit.IdRetirada}", retiradaEdit);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarToast("Retirada atualizada com sucesso!", "success");
+                    showModal = false;
+                    await CarregarRetiradas();
+                }
+                else
+                {
+                    MostrarToast("Erro ao atualizar retirada", "error");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarToast($"Erro: {ex.Message}", "error");
+        }
+    }
+
+    private async Task DeletarRetirada(int id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Tem certeza que deseja excluir esta retirada?");
+        if (confirmed)
+        {
+            try
+            {
+                var response = await Http.DeleteAsync($"api/Retirada/{id}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarToast("Retirada excluída com sucesso!", "success");
+                    await CarregarRetiradas();
+                }
+                else
+                {
+                    MostrarToast("Erro ao excluir retirada", "error");
+                }
+            }
+            catch (Exception ex)
+            {
+                MostrarToast($"Erro: {ex.Message}", "error");
+            }
+        }
+    }
+
+    private void MostrarToast(string mensagem, string tipo)
+    {
+        toastMessage = mensagem;
+        toastType = tipo;
+        showToast = true;
+        StateHasChanged();
+    }
+
+    private void FecharToast()
+    {
+        showToast = false;
+        StateHasChanged();
+    }
+}

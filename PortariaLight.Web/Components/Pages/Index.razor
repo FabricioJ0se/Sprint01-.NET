@@ -1,0 +1,73 @@
+﻿@page "/"
+@inject HttpClient Http
+@using PortariaLight.Web.Models
+
+<PageTitle>PortariaLight</PageTitle>
+
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="display-4">PortariaLight</h1>
+        <p class="lead">Sistema de Gerenciamento de Portaria</p>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">🏠 Apartamentos</h5>
+                    <p class="card-text">Gerencie os apartamentos do condomínio</p>
+                    <a href="/apartamentos" class="btn btn-primary">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Moradores</h5>
+                    <p class="card-text">Controle os moradores do condomínio</p>
+                    <a href="/moradores" class="btn btn-primary">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">📦 Encomendas</h5>
+                    <p class="card-text">Controle de encomendas recebidas</p>
+                    <a href="/encomendas" class="btn btn-primary">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">🔄 Retiradas</h5>
+                    <p class="card-text">Registro de retiradas de encomendas</p>
+                    <a href="/retiradas" class="btn btn-primary">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">🏢 Portarias</h5>
+                    <p class="card-text">Cadastro de portarias e porteiros</p>
+                    <a href="/portarias" class="btn btn-primary">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Código opcional para carregar dados iniciais
+    }
+}

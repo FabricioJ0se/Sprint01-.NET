@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PortariaLight.Application.Services;
 using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -9,54 +8,53 @@ namespace PortariaLight.Api.Controllers
     [Route("api/[controller]")]
     public class PortariaController : ControllerBase
     {
-        private readonly IPortariaService _service;
+        private readonly IPortariaService _portariaService;
 
-        public PortariaController(IPortariaService service)
+        public PortariaController(IPortariaService portariaService)
         {
-            _service = service;
+            _portariaService = portariaService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarPortariasAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var portarias = await _portariaService.GetAllPortariasAsync();
+            return Ok(portarias);
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var portaria = await _service.BuscarPortariaAsync(id);
+            var portaria = await _portariaService.GetPortariaByIdAsync(id);
             if (portaria == null)
                 return NotFound();
             return Ok(portaria);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Portaria portaria)
+        public async Task<IActionResult> Create(Portaria portaria)
         {
-            if (portaria == null)
-                return BadRequest("Dados da portaria inválidos.");
-
-            await _service.CriarPortariaAsync(portaria);
-            return CreatedAtAction(nameof(Get), new { id = portaria.IdPortaria }, portaria);
+            var created = await _portariaService.CreatePortariaAsync(portaria);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdPortaria }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Portaria portaria)
+        public async Task<IActionResult> Update(int id, Portaria portaria)
         {
-            if (portaria == null || id != portaria.IdPortaria)
-                return BadRequest("ID inconsistente ou dados inválidos.");
+            if (id != portaria.IdPortaria)
+                return BadRequest();
 
-            await _service.AtualizarPortariaAsync(portaria);
-            return NoContent();
+            var updated = await _portariaService.UpdatePortariaAsync(portaria);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existente = await _service.BuscarPortariaAsync(id);
-            if (existente == null)
+            var result = await _portariaService.DeletePortariaAsync(id);
+            if (!result)
                 return NotFound();
 
-            await _service.RemoverPortariaAsync(id);
             return NoContent();
         }
     }

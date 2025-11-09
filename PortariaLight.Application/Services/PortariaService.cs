@@ -1,29 +1,40 @@
-using PortariaLight.Domain.Entities;
+﻿using PortariaLight.Domain.Entities;
 using PortariaLight.Domain.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-public class PortariaService : IPortariaService
+namespace PortariaLight.Application.Services
 {
-    private readonly IPortariaRepository _repository;
-
-    public PortariaService(IPortariaRepository repository)
+    public class PortariaService : IPortariaService
     {
-        _repository = repository;
+        private readonly IPortariaRepository _portariaRepository;
+
+        public PortariaService(IPortariaRepository portariaRepository)
+        {
+            _portariaRepository = portariaRepository;
+        }
+
+        public async Task<IEnumerable<Portaria>> GetAllPortariasAsync()
+        {
+            return await _portariaRepository.GetAllAsync();
+        }
+
+        public async Task<Portaria?> GetPortariaByIdAsync(int id)
+        {
+            return await _portariaRepository.GetByIdAsync(id);
+        }
+
+        public async Task<Portaria> CreatePortariaAsync(Portaria portaria)
+        {
+            return await _portariaRepository.CreateAsync(portaria);
+        }
+
+        public async Task<Portaria> UpdatePortariaAsync(Portaria portaria)
+        {
+            return await _portariaRepository.UpdateAsync(portaria);
+        }
+
+        public async Task<bool> DeletePortariaAsync(int id)
+        {
+            return await _portariaRepository.DeleteAsync(id);
+        }
     }
-
-    public async Task<IEnumerable<Portaria>> ListarPortariasAsync() =>
-        await _repository.GetAllAsync();
-
-    public async Task<Portaria> BuscarPortariaAsync(int id) =>
-        await _repository.GetByIdAsync(id);
-
-    public async Task CriarPortariaAsync(Portaria portaria) =>
-        await _repository.AddAsync(portaria);
-
-    public async Task AtualizarPortariaAsync(Portaria portaria) =>
-        await _repository.UpdateAsync(portaria);
-
-    public async Task RemoverPortariaAsync(int id) =>
-        await _repository.DeleteAsync(id);
 }

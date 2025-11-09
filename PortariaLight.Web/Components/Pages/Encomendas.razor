@@ -1,0 +1,463 @@
+﻿@page "/encomendas"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Encomendas - Portaria Light</PageTitle>
+
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary mb-1">
+                <i class="fas fa-box me-2"></i>Gerenciar Encomendas
+            </h2>
+            <p class="text-muted">Controle de recebimento e retirada de encomendas</p>
+        </div>
+        <div>
+            <button class="btn btn-primary btn-lg me-2" @onclick="ShowCriarModal">
+                <i class="fas fa-plus me-2"></i>Nova Encomenda
+            </button>
+            <button class="btn btn-outline-info" @onclick="CarregarNaoRetiradas">
+                <i class="fas fa-filter me-2"></i>Não Retiradas
+            </button>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@encomendas.Count</h4>
+                            <p class="mb-0">Total de Encomendas</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-box fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@encomendas.Count(e => e.Status == "Entregue")</h4>
+                            <p class="mb-0">Entregues</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@encomendas.Count(e => e.Status == "Pendente")</h4>
+                            <p class="mb-0">Pendentes</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">@encomendas.Count(e => e.IdRetirada == 0)</h4>
+                            <p class="mb-0">Não Retiradas</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card da Tabela -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0 text-dark">
+                <i class="fas fa-list me-2"></i>Lista de Encomendas
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="text-muted mt-2">Carregando encomendas...</p>
+                </div>
+            }
+            else if (!encomendas.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhuma encomenda cadastrada</h5>
+                    <p class="text-muted">Clique no botão acima para adicionar a primeira encomenda.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Descrição</th>
+                                <th>Data Recebimento</th>
+                                <th>Status</th>
+                                <th>ID Morador</th>
+                                <th>Retirada</th>
+                                <th class="text-center pe-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var encomenda in encomendas)
+                            {
+                                <tr class="align-middle">
+                                    <td class="ps-4 fw-bold text-primary">#@encomenda.IdEncomenda</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-box text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">@encomenda.Descricao</h6>
+                                                <small class="text-muted">ID Porteiro: @(encomenda.IdPorteiro?.ToString() ?? "N/A")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        @encomenda.DataRecebida.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td>
+                                        @if (encomenda.Status == "Entregue")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>@encomenda.Status
+                                            </span>
+                                        }
+                                        else if (encomenda.Status == "Pendente")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i>@encomenda.Status
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@encomenda.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">#@encomenda.IdMorador</span>
+                                    </td>
+                                    <td>
+                                        @if (encomenda.IdRetirada == 0)
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times me-1"></i>Não Retirada
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Retirada #@encomenda.IdRetirada
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-warning" @onclick="() => EditarEncomenda(encomenda)" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" @onclick="() => DeletarEncomenda(encomenda.IdEncomenda)" title="Excluir">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+@if (showModal)
+{
+    <div class="modal show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas @(encomendaEdit.IdEncomenda == 0 ? "fa-plus" : "fa-edit") me-2"></i>
+                        @(encomendaEdit.IdEncomenda == 0 ? "Nova Encomenda" : "Editar Encomenda")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="FecharModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-box me-2 text-muted"></i>Descrição da Encomenda
+                        </label>
+                        <input @bind="encomendaEdit.Descricao" class="form-control" placeholder="Descreva a encomenda" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar me-2 text-muted"></i>Data de Recebimento
+                        </label>
+                        <input @bind="encomendaEdit.DataRecebida" type="datetime-local" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-tag me-2 text-muted"></i>Status
+                        </label>
+                        <select @bind="encomendaEdit.Status" class="form-select">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Entregue">Entregue</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user me-2 text-muted"></i>ID Morador
+                            </label>
+                            <input @bind="encomendaEdit.IdMorador" type="number" class="form-control" placeholder="ID do morador" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-receipt me-2 text-muted"></i>ID Retirada
+                            </label>
+                            <input @bind="encomendaEdit.IdRetirada" type="number" class="form-control" placeholder="ID da retirada" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-shield-alt me-2 text-muted"></i>ID Porteiro
+                        </label>
+                        <input @bind="encomendaEdit.IdPorteiro" type="number" class="form-control" placeholder="ID do porteiro" />
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="FecharModal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" @onclick="SalvarEncomenda">
+                        <i class="fas @(encomendaEdit.IdEncomenda == 0 ? "fa-save" : "fa-check") me-2"></i>
+                        @(encomendaEdit.IdEncomenda == 0 ? "Criar" : "Salvar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Toast -->
+@if (showToast)
+{
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div class="toast show" role="alert">
+            <div class="toast-header @(toastType == "success" ? "bg-success text-white" : "bg-danger text-white")">
+                <i class="fas @(toastType == "success" ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
+                <strong class="me-auto">@(toastType == "success" ? "Sucesso" : "Erro")</strong>
+                <button type="button" class="btn-close btn-close-white" @onclick="FecharToast"></button>
+            </div>
+            <div class="toast-body">
+                @toastMessage
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public class Encomenda
+    {
+        public int IdEncomenda { get; set; }
+        public string Descricao { get; set; } = string.Empty;
+        public DateTime DataRecebida { get; set; } = DateTime.Now;
+        public string Status { get; set; } = "Pendente";
+        public int IdMorador { get; set; }
+        public int IdRetirada { get; set; }
+        public int? IdPorteiro { get; set; }
+    }
+
+    private List<Encomenda> encomendas = new();
+    private List<Encomenda> todasEncomendas = new();
+    private Encomenda encomendaEdit = new();
+    private bool showModal = false;
+    private bool showToast = false;
+    private string toastMessage = "";
+    private string toastType = "success";
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarEncomendas();
+    }
+
+    private async Task CarregarEncomendas()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+            
+            var response = await Http.GetAsync("api/Encomenda");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                todasEncomendas = await response.Content.ReadFromJsonAsync<List<Encomenda>>() ?? new List<Encomenda>();
+                encomendas = todasEncomendas;
+            }
+            else
+            {
+                MostrarToast("Erro ao carregar encomendas", "error");
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarToast($"Erro: {ex.Message}", "error");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CarregarNaoRetiradas()
+    {
+        encomendas = todasEncomendas.Where(e => e.IdRetirada == 0).ToList();
+        StateHasChanged();
+    }
+
+    private void ShowCriarModal() { encomendaEdit = new Encomenda { DataRecebida = DateTime.Now }; showModal = true; }
+    private void FecharModal() { showModal = false; }
+
+    private void EditarEncomenda(Encomenda encomenda)
+    {
+        encomendaEdit = new Encomenda 
+        { 
+            IdEncomenda = encomenda.IdEncomenda,
+            Descricao = encomenda.Descricao,
+            DataRecebida = encomenda.DataRecebida,
+            Status = encomenda.Status,
+            IdMorador = encomenda.IdMorador,
+            IdRetirada = encomenda.IdRetirada,
+            IdPorteiro = encomenda.IdPorteiro
+        };
+        showModal = true;
+    }
+
+    private async Task SalvarEncomenda()
+    {
+        if (string.IsNullOrWhiteSpace(encomendaEdit.Descricao))
+        {
+            MostrarToast("Preencha a descrição da encomenda!", "error");
+            return;
+        }
+
+        try
+        {
+            if (encomendaEdit.IdEncomenda == 0)
+            {
+                // POST - Criar novo
+                var response = await Http.PostAsJsonAsync("api/Encomenda", encomendaEdit);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarToast("Encomenda criada com sucesso!", "success");
+                    showModal = false;
+                    await CarregarEncomendas();
+                }
+                else
+                {
+                    MostrarToast("Erro ao criar encomenda", "error");
+                }
+            }
+            else
+            {
+                // PUT - Atualizar existente
+                var response = await Http.PutAsJsonAsync($"api/Encomenda/{encomendaEdit.IdEncomenda}", encomendaEdit);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarToast("Encomenda atualizada com sucesso!", "success");
+                    showModal = false;
+                    await CarregarEncomendas();
+                }
+                else
+                {
+                    MostrarToast("Erro ao atualizar encomenda", "error");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarToast($"Erro: {ex.Message}", "error");
+        }
+    }
+
+    private async Task DeletarEncomenda(int id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Tem certeza que deseja excluir esta encomenda?");
+        if (confirmed)
+        {
+            try
+            {
+                var response = await Http.DeleteAsync($"api/Encomenda/{id}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarToast("Encomenda excluída com sucesso!", "success");
+                    await CarregarEncomendas();
+                }
+                else
+                {
+                    MostrarToast("Erro ao excluir encomenda", "error");
+                }
+            }
+            catch (Exception ex)
+            {
+                MostrarToast($"Erro: {ex.Message}", "error");
+            }
+        }
+    }
+
+    private void MostrarToast(string mensagem, string tipo)
+    {
+        toastMessage = mensagem;
+        toastType = tipo;
+        showToast = true;
+        StateHasChanged();
+    }
+
+    private void FecharToast()
+    {
+        showToast = false;
+        StateHasChanged();
+    }
+}

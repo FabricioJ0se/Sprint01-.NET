@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PortariaLight.Application.Services;
 using PortariaLight.Domain.Entities;
-using System.Threading.Tasks;
 
 namespace PortariaLight.Api.Controllers
 {
@@ -9,55 +8,68 @@ namespace PortariaLight.Api.Controllers
     [Route("api/[controller]")]
     public class RetiradaController : ControllerBase
     {
-        private readonly IRetiradaService _service;
+        private readonly IRetiradaService _retiradaService;
 
-        public RetiradaController(IRetiradaService service)
+        public RetiradaController(IRetiradaService retiradaService)
         {
-            _service = service;
+            _retiradaService = retiradaService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.ListarRetiradasAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var retiradas = await _retiradaService.GetAllRetiradasAsync();
+            return Ok(retiradas);
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var retirada = await _service.BuscarRetiradaAsync(id);
+            var retirada = await _retiradaService.GetRetiradaByIdAsync(id);
             if (retirada == null)
                 return NotFound();
             return Ok(retirada);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Retirada retirada)
+        public async Task<IActionResult> Create(Retirada retirada)
         {
-            if (retirada == null)
-                return BadRequest("Dados da retirada inválidos.");
-
-            await _service.CriarRetiradaAsync(retirada);
-            return CreatedAtAction(nameof(Get), new { id = retirada.IdRetirada }, retirada);
+            var created = await _retiradaService.CreateRetiradaAsync(retirada);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdRetirada }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Retirada retirada)
+        public async Task<IActionResult> Update(int id, Retirada retirada)
         {
-            if (retirada == null || id != retirada.IdRetirada)
-                return BadRequest("ID inconsistente ou dados inválidos.");
+            if (id != retirada.IdRetirada)
+                return BadRequest();
 
-            await _service.AtualizarRetiradaAsync(retirada);
-            return NoContent();
+            var updated = await _retiradaService.UpdateRetiradaAsync(retirada);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existente = await _service.BuscarRetiradaAsync(id);
-            if (existente == null)
+            var result = await _retiradaService.DeleteRetiradaAsync(id);
+            if (!result)
                 return NotFound();
 
-            await _service.RemoverRetiradaAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("encomenda/{encomendaId}")]
+        public async Task<IActionResult> GetByEncomenda(int encomendaId)
+        {
+            var retiradas = await _retiradaService.GetRetiradasByEncomendaAsync(encomendaId);
+            return Ok(retiradas);
+        }
+
+        [HttpGet("morador/{moradorId}")]
+        public async Task<IActionResult> GetByMorador(int moradorId)
+        {
+            var retiradas = await _retiradaService.GetRetiradasByMoradorAsync(moradorId);
+            return Ok(retiradas);
         }
     }
 }
