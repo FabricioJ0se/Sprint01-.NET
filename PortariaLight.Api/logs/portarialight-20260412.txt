@@ -1,0 +1,11 @@
+2026-04-12 13:12:07.524 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-04-12 13:14:17.207 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-04-12 13:19:03.434 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-04-12 13:19:52.941 -03:00 [INF] 343e9e20-e338-40f5-bde8-16684c70f03a Health check da API executado com sucesso.
+2026-04-12 13:19:53.975 -03:00 [INF] 343e9e20-e338-40f5-bde8-16684c70f03a HTTP GET /health respondeu 200 em 1039.7367 ms
+2026-04-12 13:19:54.017 -03:00 [INF] c040189c-8cf2-44ce-845f-fb56634f6db2 HTTP GET /favicon.ico respondeu 404 em 0.3248 ms
+2026-04-12 13:20:29.612 -03:00 [INF] 145069df-e6c9-4de0-84ff-885a9080f7a3 HTTP GET /health/ready respondeu 200 em 14.1996 ms
+2026-04-12 13:20:29.748 -03:00 [INF] bfed8ba9-7722-4db1-bf75-e84d411408af HTTP GET /favicon.ico respondeu 404 em 0.0609 ms
+2026-04-12 13:20:37.318 -03:00 [INF] 00285054-8c5e-4828-89d6-4f1537e6b944 Health check da API executado com sucesso.
+2026-04-12 13:20:37.320 -03:00 [INF] 00285054-8c5e-4828-89d6-4f1537e6b944 HTTP GET /health/live respondeu 200 em 3.0273 ms
+2026-04-12 13:20:37.475 -03:00 [INF] b75773f1-c727-425d-a8c6-0ad388f50e72 HTTP GET /favicon.ico respondeu 404 em 0.0320 ms
