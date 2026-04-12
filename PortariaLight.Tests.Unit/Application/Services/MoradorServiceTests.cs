@@ -1,0 +1,67 @@
+﻿using Xunit;
+using FluentAssertions;
+using Moq;
+using PortariaLight.Application.Services;
+using PortariaLight.Domain.Entities;
+using PortariaLight.Domain.Repositories;
+
+namespace PortariaLight.Tests.Unit.Application.Services;
+
+public class MoradorServiceTests
+{
+    private readonly Mock<IMoradorRepository> _moradorRepoMock;
+    private readonly MoradorService _sut;
+
+    public MoradorServiceTests()
+    {
+        _moradorRepoMock = new Mock<IMoradorRepository>();
+        _sut = new MoradorService(_moradorRepoMock.Object);
+    }
+
+    [Fact]
+    public async Task GetAllMoradoresAsync_QuandoExistemMoradores_RetornaListaCompleta()
+    {
+        // Arrange
+        var moradoresEsperados = new List<Morador>
+        {
+            new() { IdMorador = 1, Nome = "João Silva", IdApartamento = 1 },
+            new() { IdMorador = 2, Nome = "Maria Santos", IdApartamento = 2 }
+        };
+        _moradorRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(moradoresEsperados);
+
+        // Act
+        var resultado = await _sut.GetAllMoradoresAsync();
+
+        // Assert
+        resultado.Should().HaveCount(2);
+        _moradorRepoMock.Verify(r => r.GetAllAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetMoradorByIdAsync_QuandoMoradorExiste_RetornaMorador()
+    {
+        // Arrange
+        var morador = new Morador { IdMorador = 1, Nome = "João Silva", IdApartamento = 1 };
+        _moradorRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(morador);
+
+        // Act
+        var resultado = await _sut.GetMoradorByIdAsync(1);
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado!.IdMorador.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetMoradorByIdAsync_QuandoMoradorNaoExiste_RetornaNull()
+    {
+        // Arrange
+        _moradorRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((Morador?)null);
+
+        // Act
+        var resultado = await _sut.GetMoradorByIdAsync(999);
+
+        // Assert
+        resultado.Should().BeNull();
+    }
+}

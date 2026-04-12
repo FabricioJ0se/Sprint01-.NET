@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -62,7 +62,7 @@ namespace PortariaLight.Infrastructure.Repositories
         public async Task<IEnumerable<Encomenda>> GetNaoRetiradasAsync()
         {
             return await _context.Encomendas
-                .Where(e => e.IdRetirada == 0 || e.IdRetirada == null)
+                .Where(e => e.IdRetirada == 0 || e.IdRetirada == 0)
                 .ToListAsync();
         }
     }
