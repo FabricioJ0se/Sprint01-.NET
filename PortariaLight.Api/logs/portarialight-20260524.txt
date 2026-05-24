@@ -1,0 +1,29 @@
+2026-05-24 12:13:17.919 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:20:02.823 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:21:20.953 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:21:35.658 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:22:41.098 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:23:13.303 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:24:57.093 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:26:54.172 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:28:45.726 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:33:19.009 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 12:47:39.695 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 18:06:38.665 -03:00 [INF]  Iniciando PortariaLight.Api
+2026-05-24 18:23:02.408 -03:00 [INF]  Passo 1 - Iniciando builder
+2026-05-24 18:23:02.467 -03:00 [INF]  Passo 2 - Controllers
+2026-05-24 18:23:02.474 -03:00 [INF]  Passo 3 - Swagger
+2026-05-24 18:23:02.475 -03:00 [INF]  Passo 4 - Oracle
+2026-05-24 18:23:02.477 -03:00 [INF]  Passo 5 - MongoDB
+2026-05-24 18:23:02.478 -03:00 [INF]  Passo 6 - Repositories e Services
+2026-05-24 18:23:02.479 -03:00 [INF]  Passo 7 - JWT
+2026-05-24 18:23:02.483 -03:00 [INF]  Passo 8 - CORS
+2026-05-24 18:23:02.484 -03:00 [INF]  Passo 9 - Health Checks
+2026-05-24 18:23:02.485 -03:00 [INF]  Passo 10 - OpenTelemetry
+2026-05-24 18:23:02.500 -03:00 [INF]  Passo 11 - Build
+2026-05-24 18:23:02.517 -03:00 [INF]  Passo 12 - Pipeline
+2026-05-24 18:23:02.576 -03:00 [INF]  Passo 13 - Run
+2026-05-24 18:24:56.639 -03:00 [INF] 99123c8d-3d02-407e-928e-8437464c63a8 HTTP POST /api/Auth/login respondeu 200 em 2482.5859 ms
+2026-05-24 19:20:24.304 -03:00 [INF] 29c63980-437a-4e61-9ed8-133973e4a9d8 HTTP POST /api/Auth/login respondeu 200 em 19.4409 ms
+2026-05-24 19:21:11.871 -03:00 [INF] 407c7ec5-3804-4d89-9383-8302da5a518d HTTP POST /api/Morador respondeu 400 em 170.4061 ms
+2026-05-24 19:31:12.492 -03:00 [INF] 4c505704-957e-402d-8b1c-ba0d650f5c3d HTTP GET /api/Apartamento respondeu 200 em 1157.0687 ms

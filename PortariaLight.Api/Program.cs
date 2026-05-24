@@ -1,16 +1,20 @@
+ï»¿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using PortariaLight.Api.HealthChecks;
+using PortariaLight.Api.Middleware;
 using PortariaLight.Application.Services;
 using PortariaLight.Domain.Repositories;
 using PortariaLight.Infrastructure.Data;
 using PortariaLight.Infrastructure.Repositories;
-using PortariaLight.Api.HealthChecks;
 using Serilog;
 using Serilog.Events;
+using System.Text;
 
-// --- Serilog: logging estruturado --------------------------------------------
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -27,14 +31,11 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Iniciando PortariaLight.Api");
-
+    Log.Information("Passo 1 - Iniciando builder");
     var builder = WebApplication.CreateBuilder(args);
-
-    // --- Serilog como provider de log ----------------------------------------
     builder.Host.UseSerilog();
 
-    // --- Controllers + JSON --------------------------------------------------
+    Log.Information("Passo 2 - Controllers");
     builder.Services.AddControllers()
         .AddJsonOptions(options =>
         {
@@ -42,43 +43,91 @@ try
                 System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
             options.JsonSerializerOptions.WriteIndented = true;
         });
-
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddHttpContextAccessor();
+
+    Log.Information("Passo 3 - Swagger");
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+        c.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "PortariaLight API",
             Version = "v1",
             Description = "API para gerenciamento de portaria, moradores, encomendas e retiradas."
         });
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Informe: Bearer {token}"
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                },
+                Array.Empty<string>()
+            }
+        });
     });
-    builder.Services.AddHttpContextAccessor();
 
-    // --- Oracle Database ------------------------------------------------------
+    Log.Information("Passo 4 - Oracle");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    // --- Repositories --------------------------------------------------------
+    Log.Information("Passo 5 - MongoDB");
+    builder.Services.Configure<MongoDbSettings>(
+        builder.Configuration.GetSection("MongoDbSettings"));
+    builder.Services.AddScoped<ILogAcessoRepository, LogAcessoRepository>();
+
+    Log.Information("Passo 6 - Repositories e Services");
     builder.Services.AddScoped<IApartamentoRepository, ApartamentoRepository>();
     builder.Services.AddScoped<IEncomendaRepository, EncomendaRepository>();
     builder.Services.AddScoped<IMoradorRepository, MoradorRepository>();
     builder.Services.AddScoped<IPortariaRepository, PortariaRepository>();
     builder.Services.AddScoped<IRetiradaRepository, RetiradaRepository>();
-
-    // --- Services ------------------------------------------------------------
     builder.Services.AddScoped<IApartamentoService, ApartamentoService>();
     builder.Services.AddScoped<IEncomendaService, EncomendaService>();
     builder.Services.AddScoped<IMoradorService, MoradorService>();
     builder.Services.AddScoped<IPortariaService, PortariaService>();
     builder.Services.AddScoped<IRetiradaService, RetiradaService>();
 
-    // --- CORS ----------------------------------------------------------------
+    Log.Information("Passo 7 - JWT");
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var secretKey = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
+    builder.Services
+        .AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidAudience = jwtSettings["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+    builder.Services.AddAuthorization();
+
+    Log.Information("Passo 8 - CORS");
     builder.Services.AddCors(options =>
         options.AddPolicy("AllowAll", policy =>
             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
-    // --- Health Checks -------------------------------------------------------
+    Log.Information("Passo 9 - Health Checks");
     builder.Services.AddHealthChecks()
         .AddDbContextCheck<AppDbContext>(
             name: "oracle-db",
@@ -88,17 +137,12 @@ try
             name: "api-self",
             tags: new[] { "api" });
 
-    // --- OpenTelemetry: tracing + métricas ----------------------------------
+    Log.Information("Passo 10 - OpenTelemetry");
     builder.Services.AddOpenTelemetry()
         .ConfigureResource(resource => resource
-            .AddService(
-                serviceName: "PortariaLight.Api",
-                serviceVersion: "2.0.0"))
+            .AddService(serviceName: "PortariaLight.Api", serviceVersion: "2.0.0"))
         .WithTracing(tracing => tracing
-            .AddAspNetCoreInstrumentation(opts =>
-            {
-                opts.RecordException = true;
-            })
+            .AddAspNetCoreInstrumentation(opts => { opts.RecordException = true; })
             .AddEntityFrameworkCoreInstrumentation()
             .AddConsoleExporter())
         .WithMetrics(metrics => metrics
@@ -107,10 +151,12 @@ try
             .AddProcessInstrumentation()
             .AddPrometheusExporter());
 
-    // --- Build ---------------------------------------------------------------
+    Log.Information("Passo 11 - Build");
     var app = builder.Build();
 
-    // --- Pipeline HTTP -------------------------------------------------------
+    Log.Information("Passo 12 - Pipeline");
+    app.UseMiddleware<GlobalExceptionMiddleware>();
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -121,14 +167,12 @@ try
         });
     }
 
-    // Middleware de correlação de requisições (adiciona CorrelationId nos logs)
     app.Use(async (context, next) =>
     {
         var correlationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault()
                             ?? Guid.NewGuid().ToString();
         context.Items["CorrelationId"] = correlationId;
         context.Response.Headers["X-Correlation-ID"] = correlationId;
-
         using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId))
         {
             await next();
@@ -141,10 +185,7 @@ try
             "HTTP {RequestMethod} {RequestPath} respondeu {StatusCode} em {Elapsed:0.0000} ms";
     });
 
-    // Expõe métricas Prometheus em /metrics
     app.MapPrometheusScrapingEndpoint();
-
-    // Health check endpoints
     app.MapHealthChecks("/health");
     app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {
@@ -156,19 +197,21 @@ try
     });
 
     app.UseCors("AllowAll");
+    app.UseAuthentication();
     app.UseAuthorization();
+    app.UseMiddleware<LogAcessoMiddleware>();
     app.MapControllers();
 
+    Log.Information("Passo 13 - Run");
     app.Run();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Aplicação encerrada inesperadamente");
+    Log.Fatal(ex, "Erro: {Message}", ex.Message);
 }
 finally
 {
     Log.CloseAndFlush();
 }
 
-// Necessário para WebApplicationFactory nos testes de integração
 public partial class Program { }
